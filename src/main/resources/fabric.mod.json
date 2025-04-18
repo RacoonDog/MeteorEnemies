@@ -1,29 +1,28 @@
 {
   "schemaVersion": 1,
-  "id": "addon-template",
+  "id": "meteor-enemies",
   "version": "${version}",
-  "name": "Addon Template",
-  "description": "An addon template for Meteor Client addons.",
+  "name": "Meteor Enemies",
+  "description": "Meteor Client addon to mark certain players as enemies.",
   "authors": [
-    "seasnail"
+    "Crosby"
   ],
   "contact": {
-    "sources": "https://github.com/RacoonDog/meteor-addon-template"
+    "discord": "crosby.moe"
   },
-  "icon": "assets/template/icon.png",
+  "icon": "assets/enemies/icon.png",
   "environment": "client",
-  "license": "CC0-1.0",
+  "license": "MIT",
   "entrypoints": {
     "meteor": [
-      "com.example.addon.AddonTemplate"
+      "io.github.racoondog.enemies.EnemiesAddon"
     ]
   },
   "mixins": [
-    "addon-template.mixins.json"
+    "enemies.mixins.json"
   ],
   "custom": {
-    "meteor-client:color": "225,25,25",
-    "meteor-client:commit": "${commit}"
+    "meteor-client:color": "196,11,36"
   },
   "depends": {
     "java": ">=21",
