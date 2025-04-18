@@ -64,8 +64,8 @@ public class Enemies extends Module {
         .build()
     );
 
-    private final Set<String> vanishedPlayers = new ObjectOpenHashSet<>();
-    private final Set<UUID> leftPlayers = new ObjectOpenHashSet<>();
+    private final Set<String> vanishedPlayers = new ObjectOpenHashSet<>(); // currently vanished players
+    private final Set<UUID> leftPlayers = new ObjectOpenHashSet<>(); // players that left, pending vanish check
     private int timer = 0;
     private volatile boolean isChecking = false;
 
@@ -124,6 +124,7 @@ public class Enemies extends Module {
                 });
             }
 
+            // remove rejoins from the pending leave queue
             if (warnLeave.get() && checkVanish.get()) {
                 synchronized (leftPlayers) {
                     for (PlayerListS2CPacket.Entry addEntry : packet.getPlayerAdditionEntries()) {
