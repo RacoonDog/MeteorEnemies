@@ -49,10 +49,13 @@ public class EnemyCommand extends Command {
                 return SINGLE_SUCCESS;
             })
             .suggests((ctx, suggestionsBuilder) -> {
+                Enemies enemies = Modules.get().get(Enemies.class);
+
                 return CommandSource.suggestMatching(mc.getNetworkHandler().getPlayerList().stream()
                     .map(PlayerListEntry::getProfile)
                     .filter(profile -> !profile.getId().equals(mc.getNetworkHandler().getProfile().getId()))
-                    .map(GameProfile::getName), suggestionsBuilder);
+                    .map(GameProfile::getName)
+                    .filter(name -> !enemies.enemies.get().contains(name)), suggestionsBuilder);
             })
         ));
 
