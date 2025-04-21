@@ -19,7 +19,7 @@ public class BetterTabMixin {
     private void addEnemyColor(PlayerListEntry entry, CallbackInfoReturnable<Text> cir, @Local LocalRef<Color> colorRef) {
         Enemies enemies = Modules.get().get(Enemies.class);
 
-        if (enemies.isActive() && enemies.enemies.get().contains(entry.getProfile().getName())) {
+        if (enemies.isActive() && enemies.highlight.get() && enemies.enemies.get().contains(entry.getProfile().getName())) {
             colorRef.set(enemies.highlightColor.get());
         }
     }

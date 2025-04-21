@@ -20,7 +20,7 @@ public class PlayerUtilsMixin {
     private static void inject(PlayerEntity entity, Color defaultColor, CallbackInfoReturnable<Color> cir) {
         Enemies enemies = Modules.get().get(Enemies.class);
 
-        if (enemies.isActive() && enemies.enemies.get().contains(entity.getGameProfile().getName())) {
+        if (enemies.isActive() && enemies.highlight.get() && enemies.enemies.get().contains(entity.getGameProfile().getName())) {
             cir.setReturnValue(color.set(enemies.highlightColor.get()).a(defaultColor.a));
         }
     }

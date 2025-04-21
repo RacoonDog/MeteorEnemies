@@ -29,14 +29,22 @@ public class Enemies extends Module {
 
     public final Setting<List<String>> enemies = sgGeneral.add(new StringListSetting.Builder()
         .name("enemies")
-        .description("The players to highlight.")
+        .description("The players to mark as enemies.")
         .defaultValue("MineGame159")
+        .build()
+    );
+
+    public final Setting<Boolean> highlight = sgGeneral.add(new BoolSetting.Builder()
+        .name("highlight-enemies")
+        .description("Whether to highlight enemies in BetterTab and Nametags.")
+        .defaultValue(true)
         .build()
     );
 
     public final Setting<SettingColor> highlightColor = sgGeneral.add(new ColorSetting.Builder()
         .name("highlight-color")
         .description("The color to highlight the players with.")
+        .visible(highlight::get)
         .defaultValue(Color.RED)
         .build()
     );
@@ -72,7 +80,7 @@ public class Enemies extends Module {
     );
 
     private final Set<String> vanishedPlayers = new ObjectOpenHashSet<>(); // currently vanished players
-    private final Set<UUID> leftPlayers = new ObjectOpenHashSet<>(); // players that left, pending vanish check
+    private final Set<String> leftPlayers = new ObjectOpenHashSet<>(); // players that left, pending vanish check
     private int timer = 0;
     private volatile boolean isChecking = false;
     private volatile int packetId = -1;
@@ -120,6 +128,8 @@ public class Enemies extends Module {
             if (warnJoin.get()) {
                 MinecraftClient.getInstance().execute(() -> {
                     for (PlayerListS2CPacket.Entry addEntry : packet.getPlayerAdditionEntries()) {
+                        if (addEntry.profile() == null) continue;
+
                         String username = addEntry.profile().getName();
                         if (!enemies.get().contains(username)) continue;
 
@@ -129,7 +139,7 @@ public class Enemies extends Module {
                             }
                         }
 
-                        info("(highligh)%s(default) has joined the game.", name);
+                        info("(highlight)%s(default) has joined the game.", username);
                     }
                 });
             }
@@ -138,7 +148,9 @@ public class Enemies extends Module {
             if (warnLeave.get() && checkVanish.get()) {
                 synchronized (leftPlayers) {
                     for (PlayerListS2CPacket.Entry addEntry : packet.getPlayerAdditionEntries()) {
-                        leftPlayers.remove(addEntry.profileId());
+                        if (addEntry.profile() == null) continue;
+
+                        leftPlayers.remove(addEntry.profile().getName());
                     }
                 }
             }
@@ -147,15 +159,22 @@ public class Enemies extends Module {
         if (warnLeave.get() && event.packet instanceof PlayerRemoveS2CPacket packet) {
             // if the vanish checker is on, wait until next check to not announce a vanish as a leave
             if (checkVanish.get()) {
-                synchronized (leftPlayers) {
-                    leftPlayers.addAll(packet.profileIds());
-                }
+                MinecraftClient.getInstance().execute(() -> {
+                    synchronized (leftPlayers) {
+                        for (UUID uuid : packet.profileIds()) {
+                            @Nullable PlayerListEntry entry = mc.getNetworkHandler().getPlayerListEntry(uuid);
+                            if (entry != null) {
+                                leftPlayers.add(entry.getProfile().getName());
+                            }
+                        }
+                    }
+                });
             } else {
                 MinecraftClient.getInstance().execute(() -> {
                     for (UUID leftEntry : packet.profileIds()) {
                         @Nullable PlayerListEntry entry = mc.getNetworkHandler().getPlayerListEntry(leftEntry);
                         if (entry != null && enemies.get().contains(entry.getProfile().getName())) {
-                            info("(highligh)%s(default) has left the game.", entry.getProfile().getName());
+                            info("(highlight)%s(default) has left the game.", entry.getProfile().getName());
                         }
                     }
                 });
@@ -175,7 +194,7 @@ public class Enemies extends Module {
                 synchronized (vanishedPlayers) {
                     for (String name : vanishedPlayers) {
                         if (!newVanish.contains(name)) {
-                            info("(highligh)%s(default) is no longer vanished.", name);
+                            info("(highlight)%s(default) is no longer vanished.", name);
                         }
                     }
                     for (String name : newVanish) {
@@ -189,13 +208,9 @@ public class Enemies extends Module {
 
                     if (warnLeave.get()) {
                         synchronized (leftPlayers) {
-                            for (UUID leftEntry : leftPlayers) {
-                                @Nullable PlayerListEntry entry = mc.getNetworkHandler().getPlayerListEntry(leftEntry);
-                                if (entry != null) {
-                                    String username = entry.getProfile().getName();
-                                    if (enemies.get().contains(username) && !vanishedPlayers.contains(username)) {
-                                        info("(highligh)%s(default) has left the game.", entry.getProfile().getName());
-                                    }
+                            for (String leftPlayer : leftPlayers) {
+                                if (enemies.get().contains(leftPlayer) && !vanishedPlayers.contains(leftPlayer)) {
+                                    info("(highlight)%s(default) has left the game.", leftPlayer);
                                 }
                             }
 
