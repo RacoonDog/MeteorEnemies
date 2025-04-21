@@ -2,7 +2,9 @@
 
 Fairly simple Meteor Client addon to mark specific players as "enemies".
 
-In order to change their name color in the player list (tab menu), the 'Better Tab' module has to be enabled.
+If the 'Highlight' setting is active:
+- Enemies will appear as a different colour in the player list (tab menu) if the 'Better Tab' module is enabled.
+- Enemies will appear as a different colour in nametags if the 'Nametags' module is enabled.
 
 ## Commands
 
