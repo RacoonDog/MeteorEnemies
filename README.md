@@ -6,7 +6,7 @@ If the 'Highlight' setting is active:
 - Enemies will appear as a different colour in the player list (tab menu) if the 'Better Tab' module is enabled.
 - Enemies will appear as a different colour in nametags if the 'Nametags' module is enabled.
 
-## [Download](https://github.com/RacoonDog/MeteorEnemies/releases/tag/snapshot)
+[![Download](https://cdn12.picryl.com/photo/2016/12/31/download-button-download-now-button-computer-communication-e5ae87-1024.png)](https://github.com/RacoonDog/MeteorEnemies/releases/tag/snapshot)
 
 ## Commands
 
