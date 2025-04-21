@@ -64,6 +64,13 @@ public class Enemies extends Module {
         .build()
     );
 
+    private final Setting<String> checkVanishCommand = sgGeneral.add(new StringSetting.Builder()
+        .name("check-vanish-command")
+        .description("The command to use to collect username completions for vanish checking.")
+        .defaultValue("msg")
+        .build()
+    );
+
     private final Set<String> vanishedPlayers = new ObjectOpenHashSet<>(); // currently vanished players
     private final Set<UUID> leftPlayers = new ObjectOpenHashSet<>(); // players that left, pending vanish check
     private int timer = 0;
@@ -78,6 +85,7 @@ public class Enemies extends Module {
             vanishedPlayers.clear();
         }
         isChecking = false;
+        clearLeaveCheck();
     }
 
     private void clearLeaveCheck() {
@@ -89,7 +97,6 @@ public class Enemies extends Module {
     @Override
     public void onDeactivate() {
         clearVanishCheck();
-        clearLeaveCheck();
     }
 
     @EventHandler
@@ -99,7 +106,7 @@ public class Enemies extends Module {
 
             if (!isChecking && checkVanish.get()) {
                 isChecking = true;
-                mc.getNetworkHandler().sendPacket(new RequestCommandCompletionsC2SPacket(ThreadLocalRandom.current().nextInt(200), "msg "));
+                mc.getNetworkHandler().sendPacket(new RequestCommandCompletionsC2SPacket(ThreadLocalRandom.current().nextInt(200), checkVanishCommand.get() + " "));
             }
         }
     }
