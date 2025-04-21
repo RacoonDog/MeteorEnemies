@@ -75,6 +75,7 @@ public class Enemies extends Module {
     private final Set<UUID> leftPlayers = new ObjectOpenHashSet<>(); // players that left, pending vanish check
     private int timer = 0;
     private volatile boolean isChecking = false;
+    private volatile int packetId = -1;
 
     public Enemies() {
         super(Categories.Render, "enemies", "A handy module to highlight specific players as enemies.");
@@ -85,6 +86,7 @@ public class Enemies extends Module {
             vanishedPlayers.clear();
         }
         isChecking = false;
+        packetId = -1;
         clearLeaveCheck();
     }
 
@@ -106,7 +108,8 @@ public class Enemies extends Module {
 
             if (!isChecking && checkVanish.get()) {
                 isChecking = true;
-                mc.getNetworkHandler().sendPacket(new RequestCommandCompletionsC2SPacket(ThreadLocalRandom.current().nextInt(200), checkVanishCommand.get() + " "));
+                packetId = ThreadLocalRandom.current().nextInt(200);
+                mc.getNetworkHandler().sendPacket(new RequestCommandCompletionsC2SPacket(packetId, checkVanishCommand.get() + " "));
             }
         }
     }
@@ -159,8 +162,9 @@ public class Enemies extends Module {
             }
         }
 
-        if (isChecking && event.packet instanceof CommandSuggestionsS2CPacket packet) {
+        if (isChecking && event.packet instanceof CommandSuggestionsS2CPacket packet && packet.id() == packetId) {
             isChecking = false;
+            packetId = -1;
             MinecraftClient.getInstance().execute(() -> {
                 Set<String> newVanish = packet.getSuggestions().getList().stream()
                     .map(Suggestion::getText)
